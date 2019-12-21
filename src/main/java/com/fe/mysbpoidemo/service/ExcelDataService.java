@@ -12,52 +12,6 @@ import java.util.*;
  * @author rk
  */
 public class ExcelDataService {
-    public List<ExcelModel> getModelList(String filePath) {
-        Field[] fields = ExcelModel.class.getDeclaredFields();
-
-        List<ExcelModel> dataList = new ArrayList<>();
-        try {
-            Sheet sheet = ExcelReader.getFirstSheet(filePath);
-            String[] headNames = ExcelReader.getHeadNames(sheet);
-            if (sheet != null) {
-                // 从第2行开始遍历每一行，组装对象
-                for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
-                    Row row = sheet.getRow(i); // 第i行
-                    // 当前行不为空
-                    if (row != null) {
-
-                        StringBuilder stringBuilder = new StringBuilder(); // 组装Json数据
-                        stringBuilder.append("{");
-
-                        ExcelModel excelModel = new ExcelModel();
-                        // 遍历第i行每一列
-                        for (int j = 0; j < headNames.length; j++) {
-                            Cell cell = row.getCell(j); // 当前单元格
-                            String value = ExcelReader.getCellValue(cell);
-                            //System.out.println("第" + (i+1) +"行，第" + (j + 1) + "列，值：" + value);
-
-                            if (j != headNames.length - 1) {
-                                // 如果不是第i行的最后一列，则添加","
-                                stringBuilder.append("'").append(headNames[j]).append("'").append(":").append("'").append(value).append("'").append(",");
-                            } else {
-                                stringBuilder.append("'").append(headNames[j]).append("'").append(":").append("'").append(value).append("'");
-                            }
-                        } // 遍历每一列结束
-                        stringBuilder.append("}");
-                        // 第j个属性名
-                        String fieldName = fields[0].getName();
-                        // 调用属性名对应的set方法
-                        ObjectUtil.setValue(excelModel, ExcelModel.class, fieldName, ExcelModel.class.getDeclaredField(fieldName).getType(), stringBuilder.toString());
-
-                        dataList.add(excelModel);
-                    }
-                } // 遍历每一行结束
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dataList;
-    }
 
     /**
      * 获取动态对象数组

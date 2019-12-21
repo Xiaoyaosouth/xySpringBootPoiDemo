@@ -1,7 +1,6 @@
 package com.fe.mysbpoidemo.controller;
 
 import com.fe.mysbpoidemo.model.ExcelCommon;
-import com.fe.mysbpoidemo.model.ExcelModel;
 import com.fe.mysbpoidemo.service.ExcelDataService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,14 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/xy")
 public class MyExcelReaderController {
-
-    @RequestMapping(value = "/myExcelData", method = RequestMethod.GET, params = "fileUrl")
-    public List<ExcelModel> getMyExcelData(String fileUrl) {
-        System.out.println("-------获取表格数据-------");
-        ExcelDataService excelDataService = new ExcelDataService();
-        List<ExcelModel> data = excelDataService.getModelList(fileUrl);
-        return data;
-    }
 
     @RequestMapping(value = "/dynamicExcelData", method = RequestMethod.GET, params = "fileUrl")
     public List<Object> getMyDynamicExcelData(String fileUrl) {

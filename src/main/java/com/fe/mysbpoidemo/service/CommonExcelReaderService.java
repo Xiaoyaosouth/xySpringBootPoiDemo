@@ -9,9 +9,13 @@ import org.apache.poi.ss.usermodel.Sheet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 业务逻辑，处理Excel数据，封装成对象
+ * @author rk
+ */
 public class CommonExcelReaderService {
     /**
-     * 返回组装的excel数据对象
+     * 返回组装的excel数据对象（正式使用）
      * @param filePath
      * @return
      */

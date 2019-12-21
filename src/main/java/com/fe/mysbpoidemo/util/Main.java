@@ -1,16 +1,9 @@
 package com.fe.mysbpoidemo.util;
 
-import com.fe.mysbpoidemo.model.DynamicBean;
 import com.fe.mysbpoidemo.model.ExcelCommon;
-import com.fe.mysbpoidemo.model.ExcelModel;
-import com.fe.mysbpoidemo.model.UserXy;
 import com.fe.mysbpoidemo.service.CommonExcelReaderService;
-import com.fe.mysbpoidemo.service.ExcelDataService;
-import com.fe.mysbpoidemo.service.UserDataService;
 
 import javax.swing.filechooser.FileSystemView;
-import java.net.URL;
-import java.util.List;
 
 public class Main {
 
@@ -48,14 +41,6 @@ public class Main {
             /*
             String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
             List<String> data = ExcelReader.readExcelToJson(fileUrl);
-            for (int i = 0; i < data.size(); i++){
-                System.out.println(data.get(i));
-            }
-            */
-            /*
-            String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
-            ExcelDataService excelDataService = new ExcelDataService();
-            List<ExcelModel> data = excelDataService.getModelList(fileUrl);
             for (int i = 0; i < data.size(); i++){
                 System.out.println(data.get(i));
             }
