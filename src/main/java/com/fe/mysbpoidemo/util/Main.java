@@ -1,9 +1,12 @@
 package com.fe.mysbpoidemo.util;
 
 import com.fe.mysbpoidemo.model.ExcelCommon;
+import com.fe.mysbpoidemo.model.UserXy;
 import com.fe.mysbpoidemo.service.CommonExcelReaderService;
+import com.fe.mysbpoidemo.service.UserDataService;
 
 import javax.swing.filechooser.FileSystemView;
+import java.util.List;
 
 public class Main {
 
@@ -29,14 +32,14 @@ public class Main {
             FileUtil.writeTotxtFile(strAryList2, desktop + "\\temp\\template.json");
             */
 
-            /*
-            String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
+
+            String fileUrl1 = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
             UserDataService userDataService = new UserDataService();
-            List<UserXy> data = userDataService.getModelList(fileUrl);
-            for (int i = 0; i < data.size(); i++){
-                System.out.println(data.get(i));
+            List<UserXy> data1 = userDataService.getModelList(fileUrl1);
+            for (int i = 0; i < data1.size(); i++){
+                System.out.println(data1.get(i));
             }
-            */
+
 
             /*
             String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
@@ -58,6 +61,7 @@ public class Main {
             ExcelCommon data = service.getCommonExcelData(fileUrl);
             System.out.println(data.getProperty());
             System.out.println(data.getCellData());
+            System.out.println(data.toString());
 
         }catch (Exception e){
             e.printStackTrace();

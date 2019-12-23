@@ -234,6 +234,11 @@ public class ExcelReader {
         return convertCellValueToString(cell);
     }
 
+    /**
+     * 将数据封装为JSON格式（已废弃）
+     * @param filePath
+     * @return
+     */
     public static List<String> readExcelToJson(String filePath){
         List<String> dataList = new ArrayList<>();
         try {

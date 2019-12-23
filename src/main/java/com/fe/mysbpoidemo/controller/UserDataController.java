@@ -34,7 +34,7 @@ import java.util.List;
         return data;
     }
 
-    @RequestMapping(value = "/getExcelData2", method = RequestMethod.GET, params = "fileUrl")
+    @RequestMapping(value = "/excelData2", method = RequestMethod.GET, params = "fileUrl")
     public ResponseResult<List<UserXy>> getUserXyListData2(String fileUrl) {
         try {
             System.out.println("-------获取表格数据2-------");
