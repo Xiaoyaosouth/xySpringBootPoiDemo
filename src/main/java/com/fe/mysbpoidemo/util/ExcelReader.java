@@ -4,15 +4,10 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.text.*;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -50,8 +45,9 @@ public class ExcelReader {
     }
 
     /**
-     * 将单元格内容转换为字符串（建议在遍历每一行内使用）
-     *
+     * 将单元格内容转换为字符串
+     *（建议在遍历每一行内使用）
+     * @author rk
      * @param cell 单元格
      * @return
      */
@@ -59,13 +55,52 @@ public class ExcelReader {
         if (cell == null) {
             return null;
         }
+        //String dataFormat = cell.getCellStyle().getDataFormatString();
+        //System.out.print("格式：" + dataFormat + "，类型：" + cell.getCellType() + " ");
         String returnValue = null;
         switch (cell.getCellType()) {
             case NUMERIC:   //数字
-                Double doubleValue = cell.getNumericCellValue();
-                // 格式化科学计数法，取一位整数
-                DecimalFormat df = new DecimalFormat("0");
-                returnValue = df.format(doubleValue);
+                // 获取单元格格式
+                String dataFormat = cell.getCellStyle().getDataFormatString();
+                /*
+                 * 单元格格式
+                 * General： 常规
+                 * @：文本
+                 * 0_：数值，0位小数
+                 * 0.0_：数值：1位小数
+                 * ......
+                 */
+                if (dataFormat.equals("General") || dataFormat.equals("@") || dataFormat.contains("0_")) {
+                    /*
+                    // 直接将double转为string不会保留0，如果没有小数也会带个.0
+                    returnValue = String.valueOf(cell.getNumericCellValue());
+                    */
+                    if (dataFormat.contains("0_")) {
+                        // 保留多少位数
+                       // int decimalBit = dataFormat.substring(dataFormat.indexOf(".") + 1, dataFormat.indexOf("_")).length();
+                        Double doubleValue = cell.getNumericCellValue();
+                        // 数值格式
+                        String numFormatStr = dataFormat.substring(0, dataFormat.indexOf("_"));
+                        /*
+                        * 格式化科学计数法，例如
+                        * 传入0.00表示保留2位小数，如123.4 -> 123.40
+                        * 传入0.000表示保留3位小数，例如1234 -> 1234.000
+                        */
+                        DecimalFormat df = new DecimalFormat(numFormatStr);
+                        returnValue = df.format(doubleValue);
+                    } else {
+                        Double doubleValue = cell.getNumericCellValue();
+                        /*
+                        * 格式化科学计数法，取整数
+                        * 如果采用常规格式保存小数则会丢弃小数位，例如123.4 -> 123
+                        */
+                        DecimalFormat df = new DecimalFormat("0");
+                        returnValue = df.format(doubleValue);
+                    }
+                } else {
+                    // 处理日期
+                    returnValue = convertDateToString(dataFormat, cell.getDateCellValue());
+                }
                 break;
             case STRING:    //字符串
                 returnValue = cell.getStringCellValue();
@@ -75,11 +110,13 @@ public class ExcelReader {
                 returnValue = booleanValue.toString();
                 break;
             case BLANK:     // 空值
+                returnValue = null;
                 break;
             case FORMULA:   // 公式
                 returnValue = cell.getCellFormula();
                 break;
             case ERROR:     // 故障
+                returnValue = "[ERROR]";
                 break;
             default:
                 break;
@@ -88,14 +125,67 @@ public class ExcelReader {
     }
 
     /**
-     * 遍历表格单元格（用于测试POI）
+     * 将数字转换为日期或时间
+     * 【注】POI对单元格日期没有针对的类型，日期类型取出来的也是一个double值(NUMERIC)
+     *
+     * @param cellDataFormatString 通过cell.getCellStyle().getDataFormatString()得到的String
+     * @param cellDateValue        通过cell.getDateCellValue()得到的Date值
+     * @return
+     * @author rk
+     */
+    private static String convertDateToString(String cellDataFormatString, Date cellDateValue) {
+        System.out.println("单元格格式：" + cellDataFormatString);
+        String dateValue;
+        // 默认日期格式
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        switch (cellDataFormatString) {
+            default:
+                dateValue = simpleDateFormat.format(cellDateValue);
+                break;
+            case "m/d/yy":
+                dateValue = new SimpleDateFormat("yyyy/M/d").format(cellDateValue);
+                break;
+            case "yyyy/mm/dd":
+                dateValue = new SimpleDateFormat("yyyy/MM/dd").format(cellDateValue);
+                break;
+            case "yyyy\\-mm\\-dd":
+                dateValue = simpleDateFormat.format(cellDateValue);
+                break;
+            case "[$-F800]dddd\\,\\ mmmm\\ dd\\,\\ yyyy":
+                dateValue = new SimpleDateFormat("yyyy年M月d日").format(cellDateValue);
+                break;
+            case "yyyy\"年\"mm\"月\"dd\"日\"":
+                dateValue = new SimpleDateFormat("yyyy年MM月dd日").format(cellDateValue);
+                break;
+            case "yyyy\\-mm\\-dd\\ hh:mm:ss":
+                dateValue = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cellDateValue);
+                break;
+            case "yyyy\\-m\\-d\\ hh:mm:ss":
+                dateValue = new SimpleDateFormat("yyyy-M-d HH:mm:ss").format(cellDateValue);
+                break;
+            case "yyyy/mm/dd hh:mm:ss":
+                dateValue = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(cellDateValue);
+                break;
+            case "yyyy/m/d hh:mm:ss":
+                dateValue = new SimpleDateFormat("yyyy/M/d HH:mm:ss").format(cellDateValue);
+                break;
+            case "mm/dd/yyyy":
+                dateValue = new SimpleDateFormat("MM/dd/yyyy").format(cellDateValue);
+                break;
+        }
+        return dateValue;
+    }
+
+    /**
+     * 遍历表格单元格（用于测试POI）（已废弃）
      *
      * @param wb 工作簿
      */
+    @Deprecated
     private static void readWorkbook(Workbook wb) {
         List<Sheet> sheetList = new ArrayList<>(); // 存放所有sheet
         // 遍历并添加所有sheet
-        for (int i = 0; i < wb.getNumberOfSheets(); i++){
+        for (int i = 0; i < wb.getNumberOfSheets(); i++) {
             sheetList.add(wb.getSheetAt(i));
         }
         // 遍历每个sheet
@@ -117,10 +207,12 @@ public class ExcelReader {
     }
 
     /**
-     * （测试POI读取excel）输出每个单元格的内容
-     * @author rk
+     * （测试POI读取excel）输出每个单元格的内容（已废弃）
+     *
      * @param fileName excel文件路径
+     * @author rk
      */
+    @Deprecated
     public static void readExcel(String fileName) {
         Workbook workbook = null;
         FileInputStream inputStream = null;
@@ -155,6 +247,7 @@ public class ExcelReader {
 
     /**
      * 获取工作簿的第一个表格
+     * （在线读取，https转http）
      * @param filePath 文件路径
      * @return 表格对象
      * @throws IOException
@@ -162,7 +255,7 @@ public class ExcelReader {
     public static Sheet getFirstSheet(String filePath) throws IOException {
         // 获取文件后缀
         String fileSuffix = FileUtil.getFileSuffix(filePath);
-        // 在线读取（不用下载到本地）
+        // 在线读取（不用下载到本地） 将https转为http
         InputStream inputStream = new URL(FileUtil.solveHttps(filePath)).openStream();
         //Excel工作簿
         //Workbook wb = WorkbookFactory.create(inputStream);
@@ -173,11 +266,12 @@ public class ExcelReader {
     }
 
     /**
-     * 获取表格内第一行的标题属性
+     * 获取表格内第一行的标题属性（已废弃）
      *
      * @param sheet 表格
      * @return String[]
      */
+    @Deprecated
     public static String[] getHeadNames(Sheet sheet) {
         String[] headNames = null;
         if (sheet != null) {
@@ -203,6 +297,7 @@ public class ExcelReader {
     /**
      * 获取表格内第一行的标题属性
      * （列单元格为null的丢弃）
+     *
      * @param sheet 表格
      * @return
      */
@@ -227,6 +322,7 @@ public class ExcelReader {
 
     /**
      * 获取单元格内容（String），建议在遍历每一行时传入参数
+     *
      * @param cell 单元格
      * @return
      */
@@ -235,11 +331,13 @@ public class ExcelReader {
     }
 
     /**
-     * 将数据封装为JSON格式（已废弃）
-     * @param filePath
+     * 将数据封装为JSON格式
+     * （已废弃，浏览器返回的数据不合适）
+     * @param filePath 文件路径
      * @return
      */
-    public static List<String> readExcelToJson(String filePath){
+    @Deprecated
+    public static List<String> readExcelToJson(String filePath) {
         List<String> dataList = new ArrayList<>();
         try {
             Sheet sheet = getFirstSheet(filePath);
@@ -267,7 +365,7 @@ public class ExcelReader {
                         } // 遍历每一列结束
                         if (i != sheet.getPhysicalNumberOfRows() - 1) {
                             stringBuilder.append("},");
-                        }else {
+                        } else {
                             stringBuilder.append("}");
                         }
                         dataList.add(stringBuilder.toString());

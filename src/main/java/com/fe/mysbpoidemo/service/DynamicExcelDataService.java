@@ -9,12 +9,14 @@ import java.util.*;
 
 /**
  * 业务逻辑，用于对解析到的excel数据进行封装
+ *
  * @author rk
  */
-public class ExcelDataService {
+public class DynamicExcelDataService {
 
     /**
      * 获取动态对象数组
+     *
      * @param filePath
      * @return
      */
@@ -48,21 +50,23 @@ public class ExcelDataService {
                         // 遍历第i行每一列
                         for (int j = 0; j < headNameList.size(); j++) {
                             Cell cell = row.getCell(j); // 当前单元格
+
                             String value = ExcelReader.getCellValue(cell);
                             // 处理空值
-                            if (value == null){
-                                value = "null";
-                                tempSum --;
+                            if (value == null) {
+                                value = "";
+                                tempSum--;
                             }else {
-                                System.out.println("第" + (i+1) +"行，第" + (j + 1) + "列，值：" + value);
+                                System.out.println("第" + (i + 1) + "行第" + (j + 1) + "列，" +
+                                        "值：" + value);
                             }
                             // 这里处理每个单元格的值
                             dynamicBean.setValue(headNameList.get(j), value);
                         } // 遍历每一列结束
-                        if (tempSum > 0){
+                        if (tempSum > 0) {
                             Object object = dynamicBean.getObject();
                             dataList.add(object);
-                        }else {
+                        } else {
                             // System.out.println("丢弃第" + (i+1) + "行数据");
                         }
 

@@ -1,6 +1,5 @@
 package com.fe.mysbpoidemo.util;
 
-import com.fe.mysbpoidemo.model.*;
 import com.fe.mysbpoidemo.service.*;
 
 import javax.swing.filechooser.FileSystemView;
@@ -31,7 +30,7 @@ public class Main {
             */
 
             String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/enterpriseData.xlsx";
-            ExcelDataService excelDataService = new ExcelDataService();
+            DynamicExcelDataService excelDataService = new DynamicExcelDataService();
             List<Object> data = excelDataService.getDynamicModelList(fileUrl);
             for (int i = 0; i < data.size(); i++){
                 System.out.println(data.get(i));

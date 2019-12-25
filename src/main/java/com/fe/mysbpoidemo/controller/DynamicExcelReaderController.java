@@ -1,6 +1,6 @@
 package com.fe.mysbpoidemo.controller;
 
-import com.fe.mysbpoidemo.service.ExcelDataService;
+import com.fe.mysbpoidemo.service.DynamicExcelDataService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -11,13 +11,18 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/xy")
-public class MyExcelReaderController {
+public class DynamicExcelReaderController {
 
+    /**
+     *
+     * @param fileUrl 文件网络地址
+     * @return
+     */
     @RequestMapping(value = "/dynamicExcelData", method = RequestMethod.GET, params = "fileUrl")
     public List<Object> getMyDynamicExcelData(String fileUrl) {
         System.out.println("-------获取动态生成的表格数据-------");
-        ExcelDataService excelDataService = new ExcelDataService();
-        List<Object> data = excelDataService.getDynamicModelList(fileUrl);
+        DynamicExcelDataService myService = new DynamicExcelDataService();
+        List<Object> data = myService.getDynamicModelList(fileUrl);
         return data;
     }
 
