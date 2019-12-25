@@ -94,10 +94,11 @@ public class CommonExcelReaderService {
                         Cell cell = row.getCell(i);
                         // 取第j行第i列的单元格值
                         String value = ExcelReader.getCellValue(cell);
-                        System.out.println("第" + (j + 1) + "行，第" + (i + 1) + "列，值：" + value);
                         // 处理空值
                         if (value == null){
                             value = "null";
+                        }else {
+                            System.out.println("第" + (j + 1) + "行，第" + (i + 1) + "列，值：" + value);
                         }
                         cellValues.add(value);
                     } // 遍历行结束
