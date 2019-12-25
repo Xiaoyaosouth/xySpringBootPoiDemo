@@ -49,11 +49,12 @@ public class ExcelDataService {
                         for (int j = 0; j < headNameList.size(); j++) {
                             Cell cell = row.getCell(j); // 当前单元格
                             String value = ExcelReader.getCellValue(cell);
-                            System.out.println("第" + (i+1) +"行，第" + (j + 1) + "列，值：" + value);
                             // 处理空值
                             if (value == null){
                                 value = "null";
                                 tempSum --;
+                            }else {
+                                System.out.println("第" + (i+1) +"行，第" + (j + 1) + "列，值：" + value);
                             }
                             // 这里处理每个单元格的值
                             dynamicBean.setValue(headNameList.get(j), value);
@@ -62,7 +63,7 @@ public class ExcelDataService {
                             Object object = dynamicBean.getObject();
                             dataList.add(object);
                         }else {
-                            System.out.println("全为null，丢弃第" + (i+1) + "行数据");
+                            // System.out.println("丢弃第" + (i+1) + "行数据");
                         }
 
                     }

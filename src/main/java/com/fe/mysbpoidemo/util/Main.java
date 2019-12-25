@@ -1,12 +1,10 @@
 package com.fe.mysbpoidemo.util;
 
-import com.fe.mysbpoidemo.model.ExcelCommon;
-import com.fe.mysbpoidemo.model.UserXy;
-import com.fe.mysbpoidemo.service.CommonExcelReaderService;
-import com.fe.mysbpoidemo.service.UserDataService;
+import com.fe.mysbpoidemo.model.*;
+import com.fe.mysbpoidemo.service.*;
 
 import javax.swing.filechooser.FileSystemView;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
@@ -32,36 +30,13 @@ public class Main {
             FileUtil.writeTotxtFile(strAryList2, desktop + "\\temp\\template.json");
             */
 
-
-            String fileUrl1 = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
-            UserDataService userDataService = new UserDataService();
-            List<UserXy> data1 = userDataService.getModelList(fileUrl1);
-            for (int i = 0; i < data1.size(); i++){
-                System.out.println(data1.get(i));
-            }
-
-
-            /*
-            String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
-            List<String> data = ExcelReader.readExcelToJson(fileUrl);
-            for (int i = 0; i < data.size(); i++){
-                System.out.println(data.get(i));
-            }
-            */
-            /*
             String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/enterpriseData.xlsx";
             ExcelDataService excelDataService = new ExcelDataService();
             List<Object> data = excelDataService.getDynamicModelList(fileUrl);
             for (int i = 0; i < data.size(); i++){
                 System.out.println(data.get(i));
             }
-            */
-            String fileUrl = "http://xybucket.obs.cn-south-1.myhuaweicloud.com/userData.xlsx";
-            CommonExcelReaderService service = new CommonExcelReaderService();
-            ExcelCommon data = service.getCommonExcelData(fileUrl);
-            System.out.println(data.getProperty());
-            System.out.println(data.getCellData());
-            System.out.println(data.toString());
+
 
         }catch (Exception e){
             e.printStackTrace();
