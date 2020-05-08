@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * 控制器
+ * 控制器 API调用
  * @author rk
  */
 @RestController
@@ -14,7 +14,7 @@ import java.util.*;
 public class DynamicExcelReaderController {
 
     /**
-     *
+     * 解析Excel文件
      * @param fileUrl 文件网络地址
      * @return
      */
@@ -25,5 +25,4 @@ public class DynamicExcelReaderController {
         List<Object> data = myService.getDynamicModelList(fileUrl);
         return data;
     }
-
 }

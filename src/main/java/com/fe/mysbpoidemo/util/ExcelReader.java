@@ -1,11 +1,13 @@
 package com.fe.mysbpoidemo.util;
 
+import com.fe.mysbpoidemo.model.CellData;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -46,10 +48,11 @@ public class ExcelReader {
 
     /**
      * 将单元格内容转换为字符串
-     *（建议在遍历每一行内使用）
-     * @author rk
+     * （建议在遍历每一行内使用）
+     *
      * @param cell 单元格
      * @return
+     * @author rk
      */
     private static String convertCellValueToString(Cell cell) {
         if (cell == null) {
@@ -77,23 +80,23 @@ public class ExcelReader {
                     */
                     if (dataFormat.contains("0_")) {
                         // 保留多少位数
-                       // int decimalBit = dataFormat.substring(dataFormat.indexOf(".") + 1, dataFormat.indexOf("_")).length();
+                        // int decimalBit = dataFormat.substring(dataFormat.indexOf(".") + 1, dataFormat.indexOf("_")).length();
                         Double doubleValue = cell.getNumericCellValue();
                         // 数值格式
                         String numFormatStr = dataFormat.substring(0, dataFormat.indexOf("_"));
                         /*
-                        * 格式化科学计数法，例如
-                        * 传入0.00表示保留2位小数，如123.4 -> 123.40
-                        * 传入0.000表示保留3位小数，例如1234 -> 1234.000
-                        */
+                         * 格式化科学计数法，例如
+                         * 传入0.00表示保留2位小数，如123.4 -> 123.40
+                         * 传入0.000表示保留3位小数，例如1234 -> 1234.000
+                         */
                         DecimalFormat df = new DecimalFormat(numFormatStr);
                         returnValue = df.format(doubleValue);
                     } else {
                         Double doubleValue = cell.getNumericCellValue();
                         /*
-                        * 格式化科学计数法，取整数
-                        * 如果采用常规格式保存小数则会丢弃小数位，例如123.4 -> 123
-                        */
+                         * 格式化科学计数法，取整数
+                         * 如果采用常规格式保存小数则会丢弃小数位，例如123.4 -> 123
+                         */
                         DecimalFormat df = new DecimalFormat("0");
                         returnValue = df.format(doubleValue);
                     }
@@ -248,6 +251,7 @@ public class ExcelReader {
     /**
      * 获取工作簿的第一个表格
      * （在线读取，https转http）
+     *
      * @param filePath 文件路径
      * @return 表格对象
      * @throws IOException
@@ -295,6 +299,69 @@ public class ExcelReader {
     }
 
     /**
+     * 处理空列
+     * 2020-05-08 11:30
+     *
+     * @param sheet
+     * @return
+     */
+    public static Sheet solveNullCell(Sheet sheet) {
+        // 第1行为属性（属性为空则丢弃该列）
+        Row firstRow = sheet.getRow(0);
+        // 总列数
+        int totalCell = firstRow.getLastCellNum();
+        System.out.println("第1行总列数：" + totalCell);
+        // 遍历第1行每一列
+        for (int i = 0; i < totalCell; i++) {
+            // 当前列
+            Cell cell = firstRow.getCell(i);
+            // 列判空
+            if (cell == null) {
+                // System.out.println("第" + (i + 1) + "列为空");
+                // 当前列为空，将当前列和后面的列整体左移1格
+                sheet.shiftColumns(i + 1, firstRow.getLastCellNum(), -1); // 整列左移
+                // firstRow.shiftCellsLeft(i + 1, firstRow.getLastCellNum(), -1); // 行内列左移会报错
+                // 总列数-1
+                totalCell--;
+                // 当前列-1
+                i--;
+                continue;
+            }
+        }
+        return sheet;
+    }
+
+    /**
+     * 处理空行
+     * 2020-05-08 12:15
+     *
+     * @param sheet
+     * @return
+     */
+    public static Sheet solveNullRow(Sheet sheet) {
+        // 总行数
+        int totalRow = sheet.getLastRowNum() + 1;
+        System.out.println("总行数：" + totalRow);
+        // 遍历每一行
+        for (int i = 0; i < totalRow; i++) {
+            // 当前行
+            Row row = sheet.getRow(i);
+            // 行判空
+            if (row == null) {
+                System.out.println("第" + (i + 1) + "行为空");
+                // 如果是空行（即没有任何数据、格式），直接把它以下的数据往上移动
+                sheet.shiftRows(i + 1, sheet.getLastRowNum(), -1);
+                // 总行数-1
+                totalRow--;
+                // 当前行-1
+                i--;
+                continue;
+            }
+        }
+        return sheet;
+    }
+
+    /**
      * 获取表格内第一行的标题属性
      * （列单元格为null的丢弃）
      *
@@ -304,9 +371,14 @@ public class ExcelReader {
     public static List<String> getHeadNameList(Sheet sheet) {
         List<String> headNameList = new ArrayList<>();
         if (sheet != null) {
+            // 第1行的视为属性
             Row row = sheet.getRow(0);
-            //每列
-            for (int j = 0; j < row.getPhysicalNumberOfCells(); j++) {
+            // System.out.println("总共多少列属性："+row.getPhysicalNumberOfCells()); // 返回数不含空列
+            // System.out.println("实际多少列："+row.getLastCellNum());
+            // 列数
+            int lastCellNum = row.getLastCellNum();
+            // 遍历每列
+            for (int j = 0; j < lastCellNum; j++) {
                 Cell cell = row.getCell(j); // 第j列
                 // 列不为空
                 if (cell != null) {
@@ -333,6 +405,7 @@ public class ExcelReader {
     /**
      * 将数据封装为JSON格式
      * （已废弃，浏览器返回的数据不合适）
+     *
      * @param filePath 文件路径
      * @return
      */
